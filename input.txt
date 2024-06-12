@@ -1,0 +1,67 @@
+使用"github.com/extrame/xls"库并参考以下示例：
+
+package main
+
+import (
+    "fmt"
+
+    "github.com/extrame/xls"
+)
+
+func main() {
+    // 用文件选择器选择一个xls文件
+    filename, err := selectFile()
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
+    // 打开xls文件
+    file, err := xls.Open(filename,"utf-8")
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
+    // 获取第一个工作表
+    sheet := file.GetSheet(0)
+    if sheet == nil {
+        fmt.Println("工作表未找到")
+        return
+    }
+
+    // 打印工作表名称和总行数
+    fmt.Println("工作表名称：", sheet.Name)
+    fmt.Println("总行数：", sheet.MaxRow)
+
+    // 遍历工作表中的行
+    for rowNum := uint16(0); rowNum <= sheet.MaxRow; rowNum++ {
+        // 获取行
+        row := sheet.Row(int(rowNum))
+
+        // 打印行号
+        fmt.Printf("行 %v\n", rowNum)
+
+        // 遍历行中的列
+        for colNum := row.FirstCol(); colNum < row.LastCol(); colNum++ {
+            // 获取单元格
+            cell := row.Col(int(colNum))
+
+            // 打印单元格内容和类型
+            fmt.Printf("列 %v: %v (%T)\n", colNum, cell, cell)
+        }
+    }
+}
+
+// selectFile 使用文件选择器选择一个文件，并返回文件路径
+func selectFile() (string, error) {
+    fmt.Println("请选择一个xls文件：")
+
+    var filename string
+    fmt.Scanln(&filename)
+
+    return filename, nil
+}
+
+,
+帮我写一个go，先用文件选择器选择一个xls文件，然后找文件中内容为“周一”的单元格，找到后向下获取下面每一行单元格的内容，直到下面两个单元格都是空则停止，用”，“连接获取到的每一个单元格，类似“周一,班会,生物选择考,语文,数学,数学,化学选择考,物理选择考,英语,”，跳过空的单元格，然后再找内容为“周二”的单元格，重复上面的操作，直到找到“周日”单元格，若有些单元格找不到就按“周日,无,无,无,无,无,无,无,无,无,”的格式补全，再将获取到的全部内容输出到一个output.txt中。
